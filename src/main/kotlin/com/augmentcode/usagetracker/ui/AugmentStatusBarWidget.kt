@@ -5,6 +5,7 @@ import com.augmentcode.usagetracker.model.UserInfo
 import com.augmentcode.usagetracker.service.AugmentService
 import com.augmentcode.usagetracker.service.AuthManager
 import com.augmentcode.usagetracker.util.Constants
+import com.augmentcode.usagetracker.util.DialogUtils
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.options.ShowSettingsUtil
@@ -302,52 +303,20 @@ class AugmentStatusBarWidget(private val project: Project) : StatusBarWidget, St
     private fun showUsageDetails() {
         val data = augmentService.getCurrentUsageData()
         val userInfo = augmentService.getCurrentUserInfo()
-        
-        val details = buildString {
-            append("Augment 使用详情\n\n")
+        val isExpired = authManager.areCookiesExpired()
 
-            if (userInfo != null) {
-                append("用户信息：\n")
-                userInfo.email?.let { append("邮箱：$it\n") }
-                userInfo.name?.let { append("姓名：$it\n") }
-                userInfo.plan?.let { append("计划：$it\n") }
-                append("\n")
+        val details = DialogUtils.buildUsageDetails(data, userInfo, isExpired)
+
+        when (DialogUtils.showUsageDetailsDialog(project, details)) {
+            DialogUtils.UsageDetailsDialogResult.REFRESH -> {
+                performManualRefresh()
             }
-
-            append("使用情况：\n")
-            append("当前用量：${data.totalUsage} 积分\n")
-            append("使用限额：${data.usageLimit} 积分\n")
-            append("使用百分比：${data.getUsagePercentage()}%\n")
-            append("剩余积分：${data.getRemainingUsage()}\n")
-
-            if (data.dailyUsage > 0) {
-                append("日使用量：${data.dailyUsage} 积分\n")
+            DialogUtils.UsageDetailsDialogResult.OPEN_SETTINGS -> {
+                openSettingsPage()
             }
-
-            data.lastUpdate?.let {
-                append("最后更新：${it.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))}\n")
+            DialogUtils.UsageDetailsDialogResult.CANCEL -> {
+                // Do nothing
             }
-
-            append("\n认证状态：\n")
-            if (authManager.areCookiesExpired()) {
-                append("⚠️ Cookie 已过期 - 请在设置中更新")
-            } else {
-                append("✅ 已认证 - Cookie 有效")
-            }
-        }
-        
-        // Show dialog with refresh button for normal state
-        val result = Messages.showYesNoDialog(
-            project,
-            details + "\n\n是否立即刷新数据？",
-            "Augment 使用详情",
-            "刷新数据",
-            "关闭",
-            Messages.getInformationIcon()
-        )
-
-        if (result == Messages.YES) {
-            performManualRefresh()
         }
     }
     
