@@ -1,0 +1,72 @@
+<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<idea-plugin>
+    <!-- Unique identifier of the plugin. It should be FQN. It cannot be changed between the plugin versions. -->
+    <id>com.augmentcode.usage-tracker-idea</id>
+
+    <!-- Public plugin name should be written in Title Case.
+         Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-name -->
+    <name>Augment 使用量监控</name>
+
+    <!-- Plugin version -->
+    <version>1.0.0</version>
+
+    <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
+    <vendor email="wiq@live.com" url="https://github.com/akapril">akapril</vendor>
+
+    <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
+         Simple HTML elements (text formatting, paragraphs, and lists) can be added inside of <![CDATA[ ]]> bracket. -->
+    <description><![CDATA[
+    在 IntelliJ IDEA 状态栏中跟踪和显示 Augment AI 使用统计。
+
+    功能特性：
+    • 状态栏实时使用量监控
+    • 自动数据刷新
+    • 基于 Cookie 的身份认证
+    • 可配置的设置选项
+    • 支持 IDEA 2023.1+
+
+    此插件帮助您直接在 IDE 中监控 Augment AI 使用情况。
+  ]]></description>
+
+    <!-- Product and plugin compatibility requirements.
+         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
+    <depends>com.intellij.modules.platform</depends>
+
+    <!-- Extension points defined by the plugin.
+         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Status bar widget factory -->
+        <statusBarWidgetFactory
+            id="augment.usage.tracker.widget"
+            implementation="com.augmentcode.usagetracker.ui.AugmentStatusBarWidgetFactory"
+            order="after Encoding"/>
+        
+        <!-- Application configurable for settings -->
+        <applicationConfigurable 
+            parentId="tools"
+            instance="com.augmentcode.usagetracker.settings.AugmentSettingsConfigurable"
+            id="com.augmentcode.usagetracker.settings"
+            displayName="Augment 使用量监控"/>
+        
+        <!-- Application service -->
+        <applicationService 
+            serviceImplementation="com.augmentcode.usagetracker.service.AugmentService"/>
+        
+        <!-- Application component for initialization -->
+        <applicationService 
+            serviceImplementation="com.augmentcode.usagetracker.service.AuthManager"/>
+        
+        <!-- Configuration service -->
+        <applicationService 
+            serviceImplementation="com.augmentcode.usagetracker.service.ConfigService"/>
+        
+        <!-- Project activity -->
+        <projectActivity
+            implementation="com.augmentcode.usagetracker.AugmentPluginStartup"/>
+    </extensions>
+
+    <!-- Actions -->
+    <actions>
+        <!-- Add your actions here -->
+    </actions>
+</idea-plugin>
