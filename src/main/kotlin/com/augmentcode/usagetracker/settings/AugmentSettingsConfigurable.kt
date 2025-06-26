@@ -3,6 +3,7 @@ package com.augmentcode.usagetracker.settings
 import com.augmentcode.usagetracker.service.AugmentService
 import com.augmentcode.usagetracker.service.AuthManager
 import com.augmentcode.usagetracker.util.Constants
+import com.augmentcode.usagetracker.util.StatusBarDiagnostics
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.ui.Messages
 import com.intellij.ui.components.JBCheckBox
@@ -116,10 +117,16 @@ class AugmentSettingsConfigurable : Configurable {
             addActionListener { clearCredentials() }
             toolTipText = "清除已存储的认证凭据"
         }
-        
+
+        val diagnosticsButton = JButton("诊断状态栏").apply {
+            addActionListener { runStatusBarDiagnostics() }
+            toolTipText = "诊断并修复状态栏显示问题"
+        }
+
         buttonPanel.add(testConnectionButton)
         buttonPanel.add(refreshDataButton)
         buttonPanel.add(clearCredentialsButton)
+        buttonPanel.add(diagnosticsButton)
         
         return buttonPanel
     }
@@ -314,5 +321,77 @@ class AugmentSettingsConfigurable : Configurable {
         enabledCheckBox = null
         showInStatusBarCheckBox = null
         statusLabel = null
+    }
+
+    /**
+     * Run status bar diagnostics
+     * 运行状态栏诊断
+     */
+    private fun runStatusBarDiagnostics() {
+        try {
+            // Get current project
+            val projectManager = com.intellij.openapi.project.ProjectManager.getInstance()
+            val openProjects = projectManager.openProjects
+
+            if (openProjects.isEmpty()) {
+                Messages.showWarningDialog(
+                    "没有打开的项目。请先打开一个项目再运行诊断。",
+                    "状态栏诊断"
+                )
+                return
+            }
+
+            val project = openProjects.first() // Use the first open project
+
+            // Run diagnostics
+            val diagnosticReport = StatusBarDiagnostics.getDiagnosticReport(project)
+
+            // Try to force enable the widget
+            val forceEnableSuccess = StatusBarDiagnostics.forceEnableWidget(project)
+
+            val message = buildString {
+                append(diagnosticReport)
+                append("\n\n=== 修复尝试结果 ===\n")
+                if (forceEnableSuccess) {
+                    append("✅ 已尝试强制启用状态栏组件\n")
+                    append("请检查状态栏是否现在显示了使用量信息。\n")
+                    append("如果仍未显示，请重启 IDE。")
+                } else {
+                    append("❌ 无法自动修复状态栏组件\n")
+                    append("请按照上述建议手动解决问题。")
+                }
+            }
+
+            // Show diagnostic results in a large dialog
+            val dialog = object : com.intellij.openapi.ui.DialogWrapper(project) {
+                init {
+                    title = "状态栏诊断报告"
+                    init()
+                }
+
+                override fun createCenterPanel(): javax.swing.JComponent {
+                    val textArea = javax.swing.JTextArea(message).apply {
+                        isEditable = false
+                        lineWrap = true
+                        wrapStyleWord = true
+                        font = font.deriveFont(12f)
+                        rows = 20
+                        columns = 60
+                    }
+
+                    return javax.swing.JScrollPane(textArea).apply {
+                        preferredSize = java.awt.Dimension(700, 500)
+                    }
+                }
+            }
+
+            dialog.show()
+
+        } catch (e: Exception) {
+            Messages.showErrorDialog(
+                "运行状态栏诊断时发生错误：${e.message}",
+                "诊断失败"
+            )
+        }
     }
 }

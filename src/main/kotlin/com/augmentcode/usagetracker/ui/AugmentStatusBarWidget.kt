@@ -49,12 +49,26 @@ class AugmentStatusBarWidget(private val project: Project) : StatusBarWidget, St
         updateInitialDisplay()
     }
     
+    // Support both old and new API for compatibility
     override fun ID(): String = Constants.WIDGET_ID
+
+    // New API method for 2025.1+
+    fun getId(): String = Constants.WIDGET_ID
     
     override fun getPresentation(): StatusBarWidget.WidgetPresentation = this
     
     override fun install(statusBar: com.intellij.openapi.wm.StatusBar) {
-        LOG.debug("Widget installed in status bar")
+        LOG.info("Installing Augment status bar widget in project: ${project.name}")
+        LOG.info("Status bar widget ID: ${Constants.WIDGET_ID}")
+        LOG.info("Widget display name: ${Constants.WIDGET_DISPLAY_NAME}")
+
+        try {
+            // Force initial display update
+            updateInitialDisplay()
+            LOG.info("Widget installed successfully and initial display updated")
+        } catch (e: Exception) {
+            LOG.error("Error during widget installation", e)
+        }
     }
     
     override fun dispose() {
