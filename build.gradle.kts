@@ -39,7 +39,7 @@ tasks {
 
     patchPluginXml {
         sinceBuild.set("231")
-        untilBuild.set("241.*")
+        untilBuild.set("243.*") // Extended compatibility to 2024.3
     }
 
     signPlugin {

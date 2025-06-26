@@ -16,16 +16,27 @@
     <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
          Simple HTML elements (text formatting, paragraphs, and lists) can be added inside of <![CDATA[ ]]> bracket. -->
     <description><![CDATA[
-    在 IntelliJ IDEA 状态栏中跟踪和显示 Augment AI 使用统计。
+    在所有 JetBrains IDE 状态栏中跟踪和显示 Augment AI 使用统计。
 
     功能特性：
     • 状态栏实时使用量监控
-    • 自动数据刷新
+    • 自动数据刷新（可配置间隔）
     • 基于 Cookie 的身份认证
-    • 可配置的设置选项
-    • 支持 IDEA 2023.1+
+    • 智能过期检测和提醒
+    • 完全中文化界面
+    • 详细的使用统计和设置指导
 
-    此插件帮助您直接在 IDE 中监控 Augment AI 使用情况。
+    兼容所有 JetBrains IDE：
+    • IntelliJ IDEA (Ultimate & Community)
+    • PyCharm (Professional & Community)
+    • WebStorm, PhpStorm, CLion
+    • GoLand, RubyMine, DataGrip
+    • Rider, AppCode, MPS
+    • Android Studio
+
+    支持版本：2023.1 及更高版本
+
+    此插件帮助您直接在任何 JetBrains IDE 中监控 Augment AI 使用情况。
   ]]></description>
 
     <!-- Product and plugin compatibility requirements.

@@ -20,7 +20,7 @@ object Constants {
     const val SETTINGS_ENABLED = "augment.enabled"
     
     // Default Values
-    const val DEFAULT_REFRESH_INTERVAL = 30 // seconds
+    const val DEFAULT_REFRESH_INTERVAL = 60 // seconds (1 minute)
     const val DEFAULT_SHOW_IN_STATUS_BAR = true
     const val DEFAULT_ENABLED = true
     

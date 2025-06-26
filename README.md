@@ -1,10 +1,31 @@
-# Augment Usage Tracker for IntelliJ IDEA
+# Augment Usage Tracker for JetBrains IDEs
 
-> **版本**: 1.0.0  
-> **支持**: IntelliJ IDEA 2023.1+  
-> **语言**: 简体中文 | [English](README_EN.md)
+> **版本**: 1.0.0
+> **支持**: 所有 JetBrains IDE 2023.1+
+> **语言**: 简体中文
 
-一个专为 IntelliJ IDEA 设计的插件，在状态栏实时显示 Augment AI 使用统计信息。
+一个兼容所有 JetBrains IDE 的插件，在状态栏实时显示 Augment AI 使用统计信息。
+
+## 🎯 支持的 IDE
+
+### 完全兼容以下所有 JetBrains IDE：
+- **IntelliJ IDEA** (Ultimate & Community)
+- **PyCharm** (Professional & Community)
+- **WebStorm** - JavaScript 和 TypeScript 开发
+- **PhpStorm** - PHP 开发
+- **CLion** - C/C++ 开发
+- **GoLand** - Go 开发
+- **RubyMine** - Ruby 开发
+- **DataGrip** - 数据库工具
+- **Rider** - .NET 开发
+- **AppCode** - iOS/macOS 开发
+- **MPS** - 语言工程
+- **Android Studio** - Android 开发
+
+### 版本要求
+- **最低版本**: 2023.1
+- **推荐版本**: 2023.2 或更高
+- **测试版本**: 支持到 2024.3
 
 ## ✨ 功能特性
 
@@ -13,10 +34,10 @@
 - 🔄 **智能刷新**: 可配置的自动刷新间隔（5-300秒）
 - 🍪 **Cookie 认证**: 支持浏览器 Cookie 认证方式
 - ⚙️ **完全中文化**: 所有界面文本均为中文显示
-- 🎯 **版本支持**: 兼容 IntelliJ IDEA 2023.1+ 版本
+- 🎯 **广泛兼容**: 支持所有 JetBrains IDE 2023.1+ 版本
 
 ### 🔐 认证与安全
-- 🔒 **安全存储**: 使用 IDEA 密码保险箱安全存储认证信息
+- 🔒 **安全存储**: 使用 JetBrains IDE 密码保险箱安全存储认证信息
 - ⚠️ **过期检测**: 自动检测并提醒 Cookie 过期状态
 - 🔄 **自动恢复**: 重启后自动恢复认证状态
 
@@ -28,7 +49,7 @@
 
 ## 📋 系统要求
 
-- **IntelliJ IDEA**: 2023.1 或更高版本
+- **JetBrains IDE**: 任意 2023.1 或更高版本
 - **Java**: JDK 17 或更高版本
 - **操作系统**: Windows, macOS, Linux
 - **网络**: 需要访问 Augment API (app.augmentcode.com)
@@ -64,11 +85,11 @@
    ```
 
 3. **安装插件**
-   - 打开 IntelliJ IDEA
+   - 打开任意 JetBrains IDE
    - 进入 `File` → `Settings` → `Plugins`
    - 点击齿轮图标，选择 `Install Plugin from Disk...`
    - 选择 `build/distributions/` 目录下的 `.zip` 文件
-   - 重启 IDEA
+   - 重启 IDE
 
 ### 方法二：手动构建
 
@@ -140,7 +161,7 @@ eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxMjM0NX0.abc123
 
 ### 状态栏显示
 
-插件会在 IDEA 底部状态栏显示使用信息：
+插件会在 IDE 底部状态栏显示使用信息：
 
 **正常状态**:
 ```
@@ -202,12 +223,12 @@ Augment: 未认证
 **3. 数据不更新**
 - 检查刷新间隔设置
 - 手动点击刷新按钮测试
-- 查看 IDEA 日志文件中的错误信息
+- 查看 IDE 日志文件中的错误信息
 
 **4. 插件无法加载**
-- 确认 IDEA 版本 ≥ 2023.1
+- 确认 IDE 版本 ≥ 2023.1
 - 检查 Java 版本 ≥ 17
-- 重启 IDEA 后重试
+- 重启 IDE 后重试
 
 ### 日志查看
 
@@ -272,7 +293,7 @@ src/main/kotlin/com/augmentcode/usagetracker/
 - ✅ Cookie 过期检测和提醒
 - ✅ 智能交互按钮（一键打开设置/刷新数据）
 - ✅ 设置面板集成
-- ✅ 支持 IDEA 2023.1+
+- ✅ 支持所有 JetBrains IDE 2023.1+
 - ✅ 安全的凭据存储
 
 ## 🤝 贡献
@@ -282,7 +303,7 @@ src/main/kotlin/com/augmentcode/usagetracker/
 ### 开发环境设置
 
 1. 克隆项目
-2. 使用 IntelliJ IDEA 打开
+2. 使用任意 JetBrains IDE 打开
 3. 确保 JDK 17+ 已配置
 4. 运行 `./gradlew runIde` 启动开发环境
 
