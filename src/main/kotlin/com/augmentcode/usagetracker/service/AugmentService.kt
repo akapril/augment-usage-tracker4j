@@ -30,6 +30,7 @@ class AugmentService {
     }
     
     private val authManager: AuthManager by lazy { AuthManager.getInstance() }
+    private val configService: ConfigService by lazy { ConfigService.getInstance() }
     private val apiClient: AugmentApiClient by lazy { AugmentApiClient() }
     
     private val currentUsageData = AtomicReference<UsageData>(UsageData())
@@ -46,6 +47,10 @@ class AugmentService {
     
     init {
         LOG.info("AugmentService initialized")
+
+        // Load configuration from persistent storage
+        loadConfiguration()
+
         startAutoRefresh()
     }
     
@@ -63,25 +68,9 @@ class AugmentService {
         return currentUserInfo.get()
     }
     
-    /**
-     * Check if service is enabled
-     */
-    fun isEnabled(): Boolean {
-        return isEnabled.get()
-    }
+
     
-    /**
-     * Enable or disable the service
-     */
-    fun setEnabled(enabled: Boolean) {
-        isEnabled.set(enabled)
-        if (enabled) {
-            startAutoRefresh()
-        } else {
-            stopAutoRefresh()
-        }
-        LOG.info("AugmentService enabled: $enabled")
-    }
+
     
     /**
      * Check if user is authenticated
@@ -119,17 +108,30 @@ class AugmentService {
     }
     
     /**
+     * Get current refresh interval in seconds
+     * 获取当前刷新间隔（秒）
+     */
+    fun getRefreshInterval(): Int {
+        return refreshIntervalSeconds
+    }
+
+    /**
      * Set refresh interval in seconds
+     * 设置刷新间隔（秒）
      */
     fun setRefreshInterval(seconds: Int) {
-        if (seconds < 5 || seconds > 300) {
-            LOG.warn("Invalid refresh interval: $seconds, using default")
+        if (seconds < 5 || seconds > 3600) { // 扩展到 3600 秒（1小时）
+            LOG.warn("Invalid refresh interval: $seconds, using default (valid range: 5-3600 seconds)")
             return
         }
-        
+
         refreshIntervalSeconds = seconds
-        LOG.info("Refresh interval set to $seconds seconds")
-        
+
+        // Save to persistent storage
+        configService.setRefreshInterval(seconds)
+
+        LOG.info("Refresh interval set to $seconds seconds and saved to config")
+
         // Restart auto refresh with new interval
         if (isEnabled()) {
             stopAutoRefresh()
@@ -293,6 +295,57 @@ class AugmentService {
         }
     }
     
+    /**
+     * Load configuration from persistent storage
+     * 从持久化存储加载配置
+     */
+    private fun loadConfiguration() {
+        try {
+            // Load refresh interval from config
+            val savedInterval = configService.getRefreshInterval()
+            refreshIntervalSeconds = savedInterval
+
+            // Load enabled state
+            val savedEnabled = configService.isEnabled()
+            isEnabled.set(savedEnabled)
+
+            LOG.info("Configuration loaded - Refresh interval: ${refreshIntervalSeconds}s, Enabled: ${savedEnabled}")
+
+            // Validate and fix configuration if needed
+            configService.validateAndFixConfig()
+
+        } catch (e: Exception) {
+            LOG.error("Error loading configuration, using defaults", e)
+            refreshIntervalSeconds = Constants.DEFAULT_REFRESH_INTERVAL
+            isEnabled.set(Constants.DEFAULT_ENABLED)
+        }
+    }
+
+    /**
+     * Get enabled state
+     * 获取启用状态
+     */
+    fun isEnabled(): Boolean {
+        return isEnabled.get()
+    }
+
+    /**
+     * Set enabled state
+     * 设置启用状态
+     */
+    fun setEnabled(enabled: Boolean) {
+        isEnabled.set(enabled)
+        configService.setEnabled(enabled)
+
+        if (enabled) {
+            startAutoRefresh()
+        } else {
+            stopAutoRefresh()
+        }
+
+        LOG.info("Service enabled state set to: $enabled")
+    }
+
     /**
      * Dispose resources
      */

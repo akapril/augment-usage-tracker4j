@@ -8,35 +8,99 @@
     <name>Augment 使用量监控</name>
 
     <!-- Plugin version -->
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 
     <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
     <vendor email="wiq@live.com" url="https://github.com/akapril">akapril</vendor>
 
+    <!-- Plugin category -->
+    <category>Tools</category>
+
+    <!-- Plugin tags for better discoverability -->
+    <tags>
+        <tag>ai</tag>
+        <tag>augment</tag>
+        <tag>usage</tag>
+        <tag>monitoring</tag>
+        <tag>status-bar</tag>
+        <tag>productivity</tag>
+        <tag>chinese</tag>
+    </tags>
+
+    <!-- Change notes -->
+    <change-notes><![CDATA[
+        <h3>Version 1.0.1</h3>
+        <ul>
+            <li>🔧 <strong>修复设置持久化问题</strong>：用户自定义的刷新间隔现在能正确保存和恢复</li>
+            <li>📈 <strong>扩展刷新间隔范围</strong>：从 5-300 秒扩展到 5-3600 秒（1小时）</li>
+            <li>🎨 <strong>改进用户界面</strong>：实时输入验证和智能颜色反馈</li>
+            <li>💡 <strong>智能使用建议</strong>：根据设置值提供个性化的使用建议</li>
+            <li>🔍 <strong>增强错误处理</strong>：明确的错误提示和解决方案</li>
+            <li>📚 <strong>完善文档</strong>：更新用户手册和故障排除指南</li>
+        </ul>
+
+        <h3>Version 1.0.0</h3>
+        <ul>
+            <li>🎉 首次发布</li>
+            <li>✅ 支持所有 JetBrains IDE (2023.1-2026.2)</li>
+            <li>📊 状态栏实时使用量显示</li>
+            <li>🔄 可配置的自动刷新（60秒默认）</li>
+            <li>🍪 安全的 Cookie 认证</li>
+            <li>⚠️ 智能过期检测和提醒</li>
+            <li>🇨🇳 完全中文化界面</li>
+            <li>🔧 内置诊断和修复工具</li>
+            <li>📋 详细的使用统计和设置指导</li>
+            <li>🎯 特别优化 IntelliJ IDEA 2025.2 兼容性</li>
+        </ul>
+    ]]></change-notes>
+
     <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
          Simple HTML elements (text formatting, paragraphs, and lists) can be added inside of <![CDATA[ ]]> bracket. -->
     <description><![CDATA[
-    在所有 JetBrains IDE 状态栏中跟踪和显示 Augment AI 使用统计。
+    <h2>Augment AI 使用量监控插件</h2>
 
-    功能特性：
-    • 状态栏实时使用量监控
-    • 自动数据刷新（可配置间隔）
-    • 基于 Cookie 的身份认证
-    • 智能过期检测和提醒
-    • 完全中文化界面
-    • 详细的使用统计和设置指导
+    <p>在所有 JetBrains IDE 状态栏中实时跟踪和显示 <strong>Augment AI</strong> 使用统计，帮助开发者更好地管理 AI 辅助编程的使用量。</p>
 
-    兼容所有 JetBrains IDE：
-    • IntelliJ IDEA (Ultimate & Community)
-    • PyCharm (Professional & Community)
-    • WebStorm, PhpStorm, CLion
-    • GoLand, RubyMine, DataGrip
-    • Rider, AppCode, MPS
-    • Android Studio
+    <h3>🎯 核心功能</h3>
+    <ul>
+        <li><strong>实时监控</strong>：状态栏显示当前使用量和限额</li>
+        <li><strong>智能刷新</strong>：可配置的自动刷新间隔（5-300秒）</li>
+        <li><strong>安全认证</strong>：基于浏览器 Cookie 的身份认证</li>
+        <li><strong>过期提醒</strong>：智能检测并提醒 Cookie 过期状态</li>
+        <li><strong>中文界面</strong>：完全中文化的用户界面</li>
+        <li><strong>详细统计</strong>：点击查看完整的使用详情和设置指导</li>
+    </ul>
 
-    支持版本：2023.1 - 2025.3
+    <h3>🔧 智能功能</h3>
+    <ul>
+        <li><strong>一键设置</strong>：详细的 Cookie 配置指导</li>
+        <li><strong>自动诊断</strong>：内置状态栏问题诊断和修复工具</li>
+        <li><strong>版本兼容</strong>：智能适配不同 IDE 版本</li>
+        <li><strong>调试工具</strong>：完整的日志收集和分析功能</li>
+    </ul>
 
-    此插件帮助您直接在任何 JetBrains IDE 中监控 Augment AI 使用情况。
+    <h3>💻 兼容性</h3>
+    <p><strong>支持所有 JetBrains IDE</strong>：</p>
+    <ul>
+        <li>IntelliJ IDEA (Ultimate & Community)</li>
+        <li>PyCharm (Professional & Community)</li>
+        <li>WebStorm, PhpStorm, CLion</li>
+        <li>GoLand, RubyMine, DataGrip</li>
+        <li>Rider, AppCode, MPS</li>
+        <li>Android Studio</li>
+    </ul>
+
+    <p><strong>版本支持</strong>：2023.1 - 2026.2（包括最新的 2025.2 版本）</p>
+
+    <h3>🚀 快速开始</h3>
+    <ol>
+        <li>安装插件并重启 IDE</li>
+        <li>访问 <a href="https://app.augmentcode.com">app.augmentcode.com</a> 获取 Cookie</li>
+        <li>在设置中配置 Cookie：<code>设置 → 工具 → Augment 使用量监控</code></li>
+        <li>查看状态栏显示的使用量信息</li>
+    </ol>
+
+    <p>如有问题，请使用内置的诊断工具或查看 <a href="https://github.com/akapril/augment-usage-tracker-idea">GitHub 项目</a>。</p>
   ]]></description>
 
     <!-- Product and plugin compatibility requirements.
@@ -64,11 +128,11 @@
             serviceImplementation="com.augmentcode.usagetracker.service.AugmentService"/>
         
         <!-- Application component for initialization -->
-        <applicationService 
+        <applicationService
             serviceImplementation="com.augmentcode.usagetracker.service.AuthManager"/>
-        
+
         <!-- Configuration service -->
-        <applicationService 
+        <applicationService
             serviceImplementation="com.augmentcode.usagetracker.service.ConfigService"/>
         
         <!-- Project activity -->

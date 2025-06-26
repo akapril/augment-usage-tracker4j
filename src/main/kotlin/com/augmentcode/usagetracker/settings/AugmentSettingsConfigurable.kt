@@ -2,7 +2,9 @@ package com.augmentcode.usagetracker.settings
 
 import com.augmentcode.usagetracker.service.AugmentService
 import com.augmentcode.usagetracker.service.AuthManager
+import com.augmentcode.usagetracker.service.ConfigService
 import com.augmentcode.usagetracker.util.Constants
+import com.augmentcode.usagetracker.util.LogCollector
 import com.augmentcode.usagetracker.util.StatusBarDiagnostics
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.ui.Messages
@@ -23,6 +25,7 @@ class AugmentSettingsConfigurable : Configurable {
     
     private val authManager: AuthManager by lazy { AuthManager.getInstance() }
     private val augmentService: AugmentService by lazy { AugmentService.getInstance() }
+    private val configService: ConfigService by lazy { ConfigService.getInstance() }
     
     // UI Components
     private var mainPanel: JPanel? = null
@@ -59,7 +62,48 @@ class AugmentSettingsConfigurable : Configurable {
 
         refreshIntervalField = JBTextField().apply {
             columns = 10
-            toolTipText = "刷新间隔（秒）（5-300）"
+            toolTipText = "刷新间隔（秒）（5-3600，推荐60-300）"
+
+            // 保存原始背景色
+            val originalBackground = background
+            val errorBackground = java.awt.Color(255, 240, 240) // 淡红色背景
+
+            // 添加实时验证
+            document.addDocumentListener(object : javax.swing.event.DocumentListener {
+                override fun insertUpdate(e: javax.swing.event.DocumentEvent?) = validateRefreshInterval()
+                override fun removeUpdate(e: javax.swing.event.DocumentEvent?) = validateRefreshInterval()
+                override fun changedUpdate(e: javax.swing.event.DocumentEvent?) = validateRefreshInterval()
+
+                private fun validateRefreshInterval() {
+                    val value = text.toIntOrNull()
+                    when {
+                        value == null && text.isNotEmpty() -> {
+                            toolTipText = "❌ 请输入有效的数字"
+                            background = errorBackground
+                        }
+                        value != null && (value < 5 || value > 3600) -> {
+                            toolTipText = "❌ 刷新间隔必须在 5-3600 秒之间（当前：${value}秒）"
+                            background = errorBackground
+                        }
+                        value != null && value in 5..3600 -> {
+                            val recommendation = when {
+                                value < 30 -> "⚠️ 过于频繁，可能影响性能"
+                                value in 30..300 -> "✅ 推荐范围，平衡性能和实时性"
+                                value in 301..1800 -> "✅ 省电模式，适合长时间使用"
+                                else -> "✅ 最低频率，最大化省电"
+                            }
+                            toolTipText = "刷新间隔：${value}秒 - $recommendation"
+                            background = originalBackground // 恢复原始背景色
+                        }
+                        else -> {
+                            toolTipText = "刷新间隔（秒）（5-3600，推荐60-300）"
+                            background = originalBackground // 恢复原始背景色
+                        }
+                    }
+                    // 强制重绘组件以确保颜色更新
+                    repaint()
+                }
+            })
         }
 
         enabledCheckBox = JBCheckBox("启用 Augment 使用量监控").apply {
@@ -123,10 +167,16 @@ class AugmentSettingsConfigurable : Configurable {
             toolTipText = "诊断并修复状态栏显示问题"
         }
 
+        val collectLogsButton = JButton("收集调试日志").apply {
+            addActionListener { collectDebugLogs() }
+            toolTipText = "收集详细的调试信息用于问题排查"
+        }
+
         buttonPanel.add(testConnectionButton)
         buttonPanel.add(refreshDataButton)
         buttonPanel.add(clearCredentialsButton)
         buttonPanel.add(diagnosticsButton)
+        buttonPanel.add(collectLogsButton)
         
         return buttonPanel
     }
@@ -135,12 +185,13 @@ class AugmentSettingsConfigurable : Configurable {
         // Load authentication status
         val isAuthenticated = authManager.isAuthenticated()
         val cookies = if (isAuthenticated) authManager.getCookies() else ""
-        
+
+        // Load settings from ConfigService
         cookiesField?.text = cookies ?: ""
-        refreshIntervalField?.text = Constants.DEFAULT_REFRESH_INTERVAL.toString()
-        enabledCheckBox?.isSelected = augmentService.isEnabled()
-        showInStatusBarCheckBox?.isSelected = true // Default to true
-        
+        refreshIntervalField?.text = configService.getRefreshInterval().toString()
+        enabledCheckBox?.isSelected = configService.isEnabled()
+        showInStatusBarCheckBox?.isSelected = configService.isShowInStatusBar()
+
         updateStatusLabel()
     }
     
@@ -267,13 +318,15 @@ class AugmentSettingsConfigurable : Configurable {
     override fun isModified(): Boolean {
         val currentCookies = cookiesField?.password?.let { String(it) } ?: ""
         val storedCookies = authManager.getCookies() ?: ""
-        
-        val currentRefreshInterval = refreshIntervalField?.text?.toIntOrNull() ?: Constants.DEFAULT_REFRESH_INTERVAL
-        val currentEnabled = enabledCheckBox?.isSelected ?: true
-        
+
+        val currentRefreshInterval = refreshIntervalField?.text?.toIntOrNull() ?: configService.getRefreshInterval()
+        val currentEnabled = enabledCheckBox?.isSelected ?: configService.isEnabled()
+        val currentShowInStatusBar = showInStatusBarCheckBox?.isSelected ?: configService.isShowInStatusBar()
+
         return currentCookies != storedCookies ||
-                currentRefreshInterval != Constants.DEFAULT_REFRESH_INTERVAL ||
-                currentEnabled != augmentService.isEnabled()
+                currentRefreshInterval != configService.getRefreshInterval() ||
+                currentEnabled != configService.isEnabled() ||
+                currentShowInStatusBar != configService.isShowInStatusBar()
     }
     
     override fun apply() {
@@ -283,22 +336,31 @@ class AugmentSettingsConfigurable : Configurable {
             if (!cookies.isNullOrBlank()) {
                 authManager.setCookies(cookies)
             }
-            
+
             // Apply refresh interval
             val refreshInterval = refreshIntervalField?.text?.toIntOrNull()
-            if (refreshInterval != null && refreshInterval in 5..300) {
+            if (refreshInterval != null && refreshInterval in 5..3600) { // 扩展到 3600 秒（1小时）
                 augmentService.setRefreshInterval(refreshInterval)
+                // ConfigService.setRefreshInterval is called inside AugmentService.setRefreshInterval
+            } else if (refreshInterval != null) {
+                // 给用户明确的错误提示
+                throw IllegalArgumentException("刷新间隔必须在 5-3600 秒之间（当前值：$refreshInterval 秒）")
             }
-            
+
             // Apply enabled state
             val enabled = enabledCheckBox?.isSelected ?: true
             augmentService.setEnabled(enabled)
-            
+            // ConfigService.setEnabled is called inside AugmentService.setEnabled
+
+            // Apply show in status bar setting
+            val showInStatusBar = showInStatusBarCheckBox?.isSelected ?: true
+            configService.setShowInStatusBar(showInStatusBar)
+
             updateStatusLabel()
-            
+
             Messages.showInfoMessage(
                 mainPanel,
-                "✅ 设置保存成功！",
+                "✅ 设置保存成功！\n\n刷新间隔: ${refreshInterval ?: "未更改"}秒\n启用状态: ${if (enabled) "已启用" else "已禁用"}\n状态栏显示: ${if (showInStatusBar) "已启用" else "已禁用"}",
                 "设置"
             )
         } catch (e: Exception) {
@@ -391,6 +453,69 @@ class AugmentSettingsConfigurable : Configurable {
             Messages.showErrorDialog(
                 "运行状态栏诊断时发生错误：${e.message}",
                 "诊断失败"
+            )
+        }
+    }
+
+    /**
+     * Collect debug logs for troubleshooting
+     * 收集调试日志用于故障排除
+     */
+    private fun collectDebugLogs() {
+        try {
+            val debugInfo = LogCollector.collectDebugInfo()
+
+            // Show debug info in a dialog
+            val dialog = object : com.intellij.openapi.ui.DialogWrapper(null) {
+                init {
+                    title = "调试信息收集"
+                    init()
+                }
+
+                override fun createCenterPanel(): javax.swing.JComponent {
+                    val textArea = javax.swing.JTextArea(debugInfo).apply {
+                        isEditable = false
+                        lineWrap = true
+                        wrapStyleWord = true
+                        font = font.deriveFont(11f)
+                        rows = 25
+                        columns = 80
+                    }
+
+                    return javax.swing.JScrollPane(textArea).apply {
+                        preferredSize = java.awt.Dimension(800, 600)
+                    }
+                }
+
+                override fun createActions(): Array<javax.swing.Action> {
+                    return arrayOf(
+                        object : com.intellij.openapi.ui.DialogWrapper.DialogWrapperAction("保存到文件") {
+                            override fun doAction(e: java.awt.event.ActionEvent?) {
+                                val filePath = LogCollector.saveDebugInfoToFile()
+                                if (filePath != null) {
+                                    Messages.showInfoMessage(
+                                        "调试信息已保存到：\n$filePath\n\n请将此文件发送给技术支持。",
+                                        "保存成功"
+                                    )
+                                } else {
+                                    Messages.showErrorDialog(
+                                        "保存调试信息失败。",
+                                        "保存失败"
+                                    )
+                                }
+                            }
+                        },
+                        cancelAction
+                    )
+                }
+            }
+
+            dialog.show()
+
+        } catch (e: Exception) {
+            Messages.showErrorDialog(
+                "收集调试日志时发生错误：${e.message}",
+                "收集失败"
             )
         }
     }

@@ -1,6 +1,6 @@
 # Augment Usage Tracker for JetBrains IDEs
 
-> **版本**: 1.0.0
+> **版本**: 1.0.1
 > **支持**: 所有 JetBrains IDE 2023.1+
 > **语言**: 简体中文
 

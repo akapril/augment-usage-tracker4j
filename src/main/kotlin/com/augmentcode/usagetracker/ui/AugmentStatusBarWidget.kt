@@ -38,22 +38,42 @@ class AugmentStatusBarWidget(private val project: Project) : StatusBarWidget, St
     private val authStateChangeListener: (Boolean) -> Unit = { isAuth -> updateAuthState(isAuth) }
     
     init {
-        LOG.info("AugmentStatusBarWidget initialized for project: ${project.name}")
-        
-        // Register listeners
-        augmentService.addDataChangeListener(dataChangeListener)
-        augmentService.addUserInfoChangeListener(userInfoChangeListener)
-        authManager.addAuthStateChangeListener(authStateChangeListener)
-        
-        // Initial display update
-        updateInitialDisplay()
+        LOG.info("=== AugmentStatusBarWidget Initialization Started ===")
+        LOG.info("Project: ${project.name}")
+        LOG.info("Widget ID: ${Constants.WIDGET_ID}")
+        LOG.info("IntelliJ Platform Version: ${com.intellij.openapi.application.ApplicationInfo.getInstance().fullVersion}")
+
+        try {
+            // Register listeners
+            LOG.info("Registering service listeners...")
+            augmentService.addDataChangeListener(dataChangeListener)
+            augmentService.addUserInfoChangeListener(userInfoChangeListener)
+            authManager.addAuthStateChangeListener(authStateChangeListener)
+            LOG.info("Service listeners registered successfully")
+
+            // Initial display update
+            LOG.info("Performing initial display update...")
+            updateInitialDisplay()
+            LOG.info("Initial display update completed")
+
+            LOG.info("=== AugmentStatusBarWidget Initialization Completed ===")
+        } catch (e: Exception) {
+            LOG.error("Error during AugmentStatusBarWidget initialization", e)
+            throw e
+        }
     }
     
     // Support both old and new API for compatibility
-    override fun ID(): String = Constants.WIDGET_ID
+    override fun ID(): String {
+        LOG.info("StatusBarWidget.ID() called, returning: ${Constants.WIDGET_ID}")
+        return Constants.WIDGET_ID
+    }
 
     // New API method for 2025.1+
-    fun getId(): String = Constants.WIDGET_ID
+    fun getId(): String {
+        LOG.info("StatusBarWidget.getId() called, returning: ${Constants.WIDGET_ID}")
+        return Constants.WIDGET_ID
+    }
     
     override fun getPresentation(): StatusBarWidget.WidgetPresentation = this
     
